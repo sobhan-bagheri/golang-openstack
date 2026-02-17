@@ -1,12 +1,22 @@
-# ---------- Build Stage ----------
+# Stage 1: Build
 FROM golang:1.22-alpine AS builder
-WORKDIR /app
-COPY . .
-RUN  go build -o app .
 
-# ---------- Runtime Stage ----------
-FROM golang:1.22-alpine
 WORKDIR /app
+
+COPY go.mod .
+RUN go mod download
+
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o app
+
+# Stage 2: Run
+FROM alpine:latest
+
+WORKDIR /root/
+
 COPY --from=builder /app/app .
 
-ENTRYPOINT ["/app/app"]
+EXPOSE 8084
+
+CMD ["./app"]
+
