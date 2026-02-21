@@ -26,7 +26,7 @@ pipeline {
         
         stage('deploy') {
             steps {
-                sh './app'
+                sh './app &'
             }
         }
     }
